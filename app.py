@@ -43,13 +43,15 @@ URLS = {
     ]
 }
 
-# Model Persistence
+# Model Persistence (Vercel-compatible version)
 def save_models(models, team_stats):
-    """Save models and team stats to disk"""
-    os.makedirs('model_data', exist_ok=True)
+    """Save models and team stats to temporary directory"""
     try:
+        # Use temp directory for Vercel compatibility
+        os.makedirs('/tmp/model_data', exist_ok=True)
+        
         # Save neural network
-        nn_path = os.path.join('model_data', 'nn_model')
+        nn_path = os.path.join('/tmp/model_data', 'nn_model')
         save_model(models['nn']['model'], nn_path)
         
         # Save other components
@@ -61,7 +63,7 @@ def save_models(models, team_stats):
             'team_stats': team_stats
         }
         
-        with open(os.path.join('model_data', 'models.pkl'), 'wb') as f:
+        with open(os.path.join('/tmp/model_data', 'models.pkl'), 'wb') as f:
             pickle.dump(data, f)
             
         return True
@@ -70,10 +72,10 @@ def save_models(models, team_stats):
         return False
 
 def load_models():
-    """Load models and team stats from disk"""
+    """Load models and team stats from temporary directory"""
     try:
-        model_path = os.path.join('model_data', 'models.pkl')
-        nn_path = os.path.join('model_data', 'nn_model')
+        model_path = os.path.join('/tmp/model_data', 'models.pkl')
+        nn_path = os.path.join('/tmp/model_data', 'nn_model')
         
         if not os.path.exists(model_path) or not os.path.exists(nn_path):
             return None, None
@@ -441,7 +443,7 @@ def predict():
     
     return jsonify(result)
 
-# HTML Template
+# HTML Template (keep your original TEMPLATE string exactly as is)
 TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -711,6 +713,9 @@ def initialize_application():
 def handle_shutdown(signum, frame):
     print("\nServer shutting down gracefully...")
     sys.exit(0)
+
+# Vercel requirement - WSGI application
+application = app
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, handle_shutdown)
