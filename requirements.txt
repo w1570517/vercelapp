@@ -1,4 +1,7 @@
-Flask==2.3.2
+Flask>=2.0.0
+scikit-learn>=1.0.0
+tensorflow>=2.9.0
+
 
 
 
